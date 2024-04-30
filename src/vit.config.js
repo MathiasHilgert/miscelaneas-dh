@@ -12,7 +12,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(root,'index.html'),
-        secundaria: resolve(root, 'secundaria', 'actividad1.html'),
+       
       },
     },
   },
