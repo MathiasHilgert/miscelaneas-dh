@@ -6,7 +6,7 @@ import{j as e,v as t,s as o}from"./ShowResult-1ebc581f.js";console.log("hola est
   <a href="https://vitejs.dev" target="_blank">
     <img src="${t}" class="logo" alt="Vite logo" />
   </a>
-  <h1>Vamos carajo!!!!!</h1>
+  <h1>Página Secundaria</h1>
     <h1>Calculadora</h1>
     <input type="text" id="numero1" placeholder="inserte numero 1">
     <input type="text" id="numero2" placeholder="inserte numero 2">
