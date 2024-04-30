@@ -1,6 +1,6 @@
 import './style.css'
-import javascriptLogo from './javascript.svg'
-import viteLogo from '../src/vite.svg'
+import javascriptLogo from '../javascript.svg'
+import viteLogo from '../vite.svg'
 import {showResult} from './ShowResult'
 
 document.querySelector('#app').innerHTML = `
