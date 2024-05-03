@@ -70,15 +70,6 @@ class PgEvent {
     }
 }
 
-class HousePGEvent extends PgEvent {
-    lights = [];
-
-    constructor() {
-        super();
-    }
-
-}
-
 /**
  * The HouseController object controls the behavior and functionality of a house.
  * @typedef {Object} HouseController

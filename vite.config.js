@@ -11,6 +11,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         casitadigital: resolve(root, 'casitadigital/index.html'),
+        casitacompleja: resolve(root, 'casitacompleja/index.html'),
       },
     },
   },
