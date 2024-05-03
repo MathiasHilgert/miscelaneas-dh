@@ -10,8 +10,7 @@ export default defineConfig({
     emptyOutDir:true,
     rollupOptions: {
       input: {
-        main: resolve(root,'index.html'),
-        secundaria: resolve(root, 'secundaria', 'actividad1.html'),
+        casitadigital: resolve(root, 'casitadigital/index.html'),
       },
     },
   },
