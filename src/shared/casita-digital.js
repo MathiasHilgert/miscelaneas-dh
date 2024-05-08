@@ -31,10 +31,13 @@ class CasitaDigitalPgEvent {
             if (values.length < 2) {
                 continue;
             }
-            switch (values[0]) {
-                case ID:
-                    this.data[ID] = values[1];
-                    break;
+
+            // Set the data.
+            console.log("Received data: ", values);
+            for (const key in this.data) {
+                if (key === values[0]) {
+                    this.data[key] = values[1];
+                }
             }
         }
     }
