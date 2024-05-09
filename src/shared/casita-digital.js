@@ -56,9 +56,10 @@ class CasitaDigitalPgEvent {
      * Handles a failed event.
      * @param {string} message - The message associated with the event.
      */
-    onFailEvent(message) {
+    onFailEvent(message,_reasons) {//sacale el guion bajo cuando descomentes
         this.data["event"] = "FAILURE";
         this.data["message"] = message;
+        //this.data["reasons"]=reasons
         window.top.postMessage(this.data, "*");
     }
 
