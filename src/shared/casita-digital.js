@@ -261,7 +261,9 @@ const CasitaDigital = (expectedLetter) => {
 
     // If there is a previous state, set the lights values.
     pgEvent.getValues();
+    console.log("Previous state: ", pgEvent.data);
     if (pgEvent.data.lights) {
+        console.log("Setting lights values from previous state: ", pgEvent.data.lights);
         houseController.setLightsValues(pgEvent.data.lights);
     }
 }
