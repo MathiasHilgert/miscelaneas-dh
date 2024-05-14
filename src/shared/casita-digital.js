@@ -1,78 +1,4 @@
-/**
- * Represents a PgEvent.
- * @class
- */
-class CasitaDigitalPgEvent {
-    constructor() {
-        this.data = {
-            type: "house-type",
-            event: 0,
-            message: "",
-            id: "",
-            state: "",
-        };
-    }
-
-    /**
-     * Retrieves the values from the query string in the URL.
-     */
-    getValues() {
-        const url = document.location.href;
-        const paths = url.split("?");
-        if (paths.length < 2) {
-            return;
-        }
-        const queryStrings = paths[1].split("&")
-        for (const qs of queryStrings) {
-            if (qs.length < 2) {
-                continue;
-            }
-            const values = qs.split("=");
-            if (values.length < 2) {
-                continue;
-            }
-
-            // Set the data.
-            console.log("Received data: ", values);
-            for (const key in this.data) {
-                if (key === values[0]) {
-                    this.data[key] = values[1];
-                }
-            }
-        }
-    }
-
-    /**
-     * Handles a successful event.
-     * @param {string} message - The message associated with the event.
-     */
-    onSuccessEvent(message) {
-        this.data["event"] = "SUCCESS";
-        this.data["message"] = message;
-        window.top.postMessage(this.data, "*");
-    }
-
-    /**
-     * Handles a failed event.
-     * @param {string} message - The message associated with the event.
-     */
-    onFailEvent(message,_reasons) {//sacale el guion bajo cuando descomentes
-        this.data["event"] = "FAILURE";
-        this.data["message"] = message;
-        //this.data["reasons"]=reasons
-        window.top.postMessage(this.data, "*");
-    }
-
-    /**
-     * Sends the state to the parent window.
-     * @param {string} state - The state to be sent.
-     */
-    sendState(state) {
-        this.data["event"] = "STATE"
-        this.data["state"] = state
-        window.top.postMessage(this.data, "*");
-    }
-}
+import { PGEvent } from "./pg-event";
 
 /**
  * The HouseController object controls the behavior and functionality of a house.
@@ -278,7 +204,7 @@ const HouseController = {
  * @param {string} expectedLetter - The expected letter that the user needs to find.
  */
 const CasitaDigital = (expectedLetter) => {
-    const pgEvent = new CasitaDigitalPgEvent();
+    const pgEvent = new PGEvent();
     let hasSuccess = false;
 
     const house = document.getElementById('casa');
@@ -309,27 +235,34 @@ const CasitaDigital = (expectedLetter) => {
         // Check if the obtained message is the expected one.
         const message = houseController.translateLightsToMessage(lights);
         if (message !== expectedLetter) {
-            pgEvent.onFailEvent("¡Oh no! Esa no es la letra correcta. Inténtalo de nuevo.");
+            pgEvent.postToPG({
+                event: "FAILURE",
+                message: "¡Oh no! Esa no es la letra correcta. Inténtalo de nuevo.",
+                reasons: [],
+                state: JSON.stringify({
+                    lights: Array.from(lights).map((light) => parseInt(light.value)),
+                })
+            })
+
             hasSuccess = false;
             return;
         } 
 
-        pgEvent.onSuccessEvent("¡Bien hecho! Has encontrado la letra correcta.");
+        pgEvent.postToPG({
+            event: "SUCCESS",
+            message: "¡Felicidades! Has encontrado la letra correcta.",
+            reasons: [],
+            state: JSON.stringify({
+                lights: Array.from(lights).map((light) => parseInt(light.value)),
+            })
+        });
         hasSuccess = true;
-
-        // Get each light value and send the state.
-        const lightsValues = [];
-        for (let light of lights) {
-            lightsValues.push(parseInt(light.value));
-        }
-        pgEvent.sendState(lightsValues);
     });
 
     // If there is a previous state, set the lights values.
     pgEvent.getValues();
-    if (pgEvent.data.state) {
-        const lightsValues = pgEvent.data.state.split(",");
-        houseController.setLightsValues(lightsValues);
+    if (pgEvent.data.lights) {
+        houseController.setLightsValues(pgEvent.data.lights);
     }
 }
 
