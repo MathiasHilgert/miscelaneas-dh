@@ -31,9 +31,9 @@ export class PGEvent {
         }
     }
 
-    postToPG(dataObject) {
+    postToPg(dataObject) {
         dataObject.type = this.data.type; 
-        dataObject.id = this.getValues()[ID];
+        dataObject.id = this.data.id;
         window.top.postMessage(dataObject, "*");
     }
 }
