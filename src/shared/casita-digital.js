@@ -235,7 +235,7 @@ const CasitaDigital = (expectedLetter) => {
         // Check if the obtained message is the expected one.
         const message = houseController.translateLightsToMessage(lights);
         if (message !== expectedLetter) {
-            pgEvent.postToPG({
+            pgEvent.postToPg({
                 event: "FAILURE",
                 message: "¡Oh no! Esa no es la letra correcta. Inténtalo de nuevo.",
                 reasons: [],
@@ -248,7 +248,7 @@ const CasitaDigital = (expectedLetter) => {
             return;
         } 
 
-        pgEvent.postToPG({
+        pgEvent.postToPg({
             event: "SUCCESS",
             message: "¡Felicidades! Has encontrado la letra correcta.",
             reasons: [],
