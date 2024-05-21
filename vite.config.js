@@ -15,6 +15,8 @@ export default defineConfig({
         
         demoCasitaSimple01: resolve(root, 'demoCasitaSimple01/index.html'),
         demoCasitaPalabras01: resolve(root, 'demoCasitaPalabras01/index.html'),
+
+        demoCreadorLaberinto: resolve(root, 'demoCreadorLaberinto/index.html'),
       },
     },
   },
