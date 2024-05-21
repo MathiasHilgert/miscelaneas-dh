@@ -1,74 +1,4 @@
-/**
- * Represents a PgEvent.
- * @class
- */
-class CasitaComplejaPgEvent {
-    constructor() {
-        this.data = {
-            type: "house-type",
-            event: 0,
-            message: "",
-            id: "",
-            state: "",
-        };
-    }
-
-    /**
-     * Retrieves the values from the query string in the URL.
-     */
-    getValues() {
-        const url = document.location.href;
-        const paths = url.split("?");
-        if (paths.length < 2) {
-            return;
-        }
-        const queryStrings = paths[1].split("&")
-        for (const qs of queryStrings) {
-            if (qs.length < 2) {
-                continue;
-            }
-            const values = qs.split("=");
-            if (values.length < 2) {
-                continue;
-            }
-            switch (values[0]) {
-                case ID:
-                    this.data[ID] = values[1];
-                    break;
-            }
-        }
-    }
-
-    /**
-     * Handles a successful event.
-     * @param {string} message - The message associated with the event.
-     */
-    onSuccessEvent(message) {
-        this.data["event"] = "SUCCESS";
-        this.data["message"] = message;
-        window.top.postMessage(this.data, "*");
-    }
-
-    /**
-     * Handles a failed event.
-     * @param {string} message - The message associated with the event.
-     */
-    onFailEvent(message) {
-        this.data["event"] = "FAILURE";
-        this.data["message"] = message;
-        window.top.postMessage(this.data, "*");
-    }
-
-    /**
-     * Sends the state to the parent window.
-     * @param {string} state - The state to be sent.
-     */
-    sendState(state) {
-        this.data["event"] = "STATE"
-        this.data["state"] = state
-        window.top.postMessage(this.data, "*");
-    }
-}
+import { PGEvent } from "./pg-event";
 
 /**
  * Represents a binary exercise UI generator in order to allow the user
@@ -289,7 +219,7 @@ const CasitaCompleja = (expectedWord) => {
 
     // Define initial state.
     const container = document.getElementById("casita");
-    const pgEvent = new CasitaComplejaPgEvent();
+    const pgEvent = new PGEvent();
     let hasSucceded = false;
 
     // Create the generator, generate the UI and set the event listener,
@@ -304,10 +234,24 @@ const CasitaCompleja = (expectedWord) => {
         const obtainedWord = generator.binaryStringToWord(binaryString);
 
         if (obtainedWord !== expectedWord) {
-            pgEvent.onFailEvent("¡Oh no! Esa no es la palabra correcta. Inténtalo de nuevo.");
+            pgEvent.postToPg({
+                event: "FAILURE",
+                message: "¡Oh no! Esa no es la palabra correcta. Inténtalo de nuevo.",
+                reasons: [],
+                state: JSON.stringify({
+                    selectors: binaryString,
+                })
+            })
             hasSucceded = false;
         } else {
-            pgEvent.onSuccessEvent("¡Bien hecho! Has encontrado la palabra correcta.");
+            pgEvent.postToPg({
+                event: "SUCCESS",
+                message: "Bien hecho! Has encontrado la letra correcta.",
+                reasons: [],
+                state: JSON.stringify({
+                    selectors: binaryString,
+                })
+            });
             hasSucceded = true;
         }
 
@@ -320,15 +264,12 @@ const CasitaCompleja = (expectedWord) => {
                 preview.textContent = preview.textContent.replace(/[✅❌]/g, "") + emoji;
             }
         });
-
-        // Send the current state to the parent window.
-        pgEvent.sendState(binaryString);
     });
 
     // Load the initial state, if any.
     pgEvent.getValues();
-    if (pgEvent.data.state) {
-        const binaryArray = pgEvent.data.state.match(/.{1,2}/g);
+    if (pgEvent.data.state?.selectors) {
+        const binaryArray = pgEvent.data.state.selectors.match(/.{1,2}/g);
         generator.setBinarySelects(container, binaryArray);
     }
 };
