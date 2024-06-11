@@ -34,6 +34,7 @@ export class PGEvent {
     postToPg(dataObject) {
         dataObject.type = this.data.type; 
         dataObject.id = this.data.id;
+        console.log("postToPg", dataObject);
         window.top.postMessage(dataObject, "*");
     }
 }
