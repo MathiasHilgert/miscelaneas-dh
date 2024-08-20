@@ -4,7 +4,6 @@ import { PGEvent } from "./pg-event";
  * The HouseController object controls the behavior and functionality of a house.
  * @typedef {Object} HouseController
  * @property {HTMLElement} houseContainer - The container element where the house is displayed.
- * @property {Array<Array<string>>} houseMap - The array representing the structure of the house.
  * @property {HTMLElement} messageElement - The HTML element where the message is displayed.
  * @property {function} updateText - Updates the text of an HTML element with a message character based on the given message number.
  * @property {function} updateMessage - Updates the message based on the state of the lights.
@@ -18,12 +17,6 @@ const HouseController = {
      * @type {HTMLElement}
      */
     houseContainer: null,
-
-    /**
-     * The array representing the structure of the house.
-     * @type {Array<Array<string>>}
-     */
-    houseMap: null,
 
     /**
      * The HTML element where the message is displayed.
@@ -41,15 +34,15 @@ const HouseController = {
      * On change event handler for the lights.
      * @param {HTMLCollection} lights - The collection of lights.
      */
-    onLightsChange: (lights) => {},
+    onLightsChange: (lights) => { },
 
     /**
      * The available characters for the message.
      * @type {Array<string>}
      */
     availableChars: [
-        " ", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", 
-        "Ñ", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", 
+        " ", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
+        "Ñ", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
         ".", ",", "!", "?",
     ],
 
@@ -78,6 +71,30 @@ const HouseController = {
         }
         let messageNumber = parseInt(message, 2); // Binary to decimal
         return HouseController.availableChars[messageNumber];
+    },
+
+    /**
+     * Translate the message to lights values, based on the available characters.
+     * @param {string} message - The message to translate to lights values.
+     * @returns {Array<number>} The lights values based on the message.
+     */
+    translateMessageToLights: (message) => {
+        // Find the index of the message character in the availableChars array.
+        let messageNumber = HouseController.availableChars.indexOf(message);
+
+        // Convert the message number to binary.
+        let binaryMessage = messageNumber.toString(2);
+
+        // Fill the binary message with zeros to match the number of lights.
+        let numLights = HouseController.lights.length;
+        let missingZeros = numLights - binaryMessage.length;
+
+        for (let i = 0; i < missingZeros; i++) {
+            binaryMessage = "0" + binaryMessage;
+        }
+
+        // Convert the binary message to an array of numbers.
+        return binaryMessage.split("").map((value) => parseInt(value));
     },
 
     /**
@@ -123,78 +140,45 @@ const HouseController = {
      * @returns {void}
      */
     createLights: () => {
-        // Create the select elements for the lights.
-        let selectElement = document.createElement("SELECT");
-        
-        let elemOption1 = document.createElement("OPTION");
-        elemOption1.innerHTML = "1";
-        elemOption1.value = "1";
-        selectElement.appendChild(elemOption1);
-        
-        let elemOption0 = document.createElement("OPTION");
-        elemOption0.innerHTML = "0";
-        elemOption0.value = "0";
-        selectElement.appendChild(elemOption0);
+        // Calculate how many lights are needed based on the available characters.
+        let numLights = Math.ceil(Math.log2(HouseController.availableChars.length));
+        let lightsContainer = document.createElement("div");
 
-        for (let i = 0; i < 5; i++) {
-            let thisElem = document.querySelector(".luz" + i);
-            let thisSelect = selectElement.cloneNode(true);
-            thisSelect.value = 0;
-            thisSelect.addEventListener("change", () => {
+        for (let i = 0; i < numLights; i++) {
+            let selectElement = document.createElement("SELECT");
+            selectElement.addEventListener("change", () => {
                 HouseController.onLightsChange(HouseController.lights);
                 HouseController.updateMessage();
             });
-            thisElem.appendChild(thisSelect);
 
-            if (HouseController.lights === undefined) HouseController.lights = [];
-            HouseController.lights.push(thisSelect);
-        }
-    },
+            let elemOption0 = document.createElement("OPTION");
+            elemOption0.innerHTML = "0";
+            elemOption0.value = "0";
+            selectElement.appendChild(elemOption0);
 
-    /**
-     * Creates a house based on the provided squares array.
-     * 
-     * @param {HTMLElement} house - The container element where the house will be created.
-     * @param {Array<Array<string>>} squares - The array representing the structure of the house.
-     */
-    createHouse: (house, squares) => {
-        // Create the house, based on the squares array.
-        for (let row of squares) {
-            let rowElement = document.createElement("TR");
-            for (let rowElementClasses of row) {
-                if (rowElementClasses != "n") {
-                    let cellElement = document.createElement("TD");
-                    cellElement.classList.add(rowElementClasses);
-                    if (rowElementClasses.includes("luz")) {
-                        cellElement.setAttribute("colspan", "2");
-                        cellElement.setAttribute("rowspan", "2");
-                    }
-                    if (rowElementClasses.includes("mensaje")) {
-                        cellElement.setAttribute("colspan", "4");
-                        cellElement.setAttribute("rowspan", "3");
-                        cellElement.setAttribute("id", "caja-mensajes");
-                    }
-                    rowElement.appendChild(cellElement);
-                }
-            }
-            house.appendChild(rowElement);
+            let elemOption1 = document.createElement("OPTION");
+            elemOption1.innerHTML = "1";
+            elemOption1.value = "1";
+            selectElement.appendChild(elemOption1);
+
+            lightsContainer.appendChild(selectElement);
+            HouseController.lights.push(selectElement);
         }
+
+        HouseController.houseContainer.appendChild(lightsContainer);
     },
 
     /**
      * Initializes the HouseController object with the provided parameters.
      * @param {HTMLElement} houseContainer - The container element where the house will be created.
-     * @param {Array<Array<string>>} houseMap - The array representing the structure of the house.
      * @param {HTMLElement} whereToWrite - The HTML element where the message will be displayed.
      * @param {function} onLightsChange - The event handler for the lights.
      */
-    init: (houseContainer, houseMap, whereToWrite, onLightsChange) => {
+    init: (houseContainer, whereToWrite, onLightsChange) => {
         HouseController.houseContainer = houseContainer;
-        HouseController.houseMap = houseMap;
         HouseController.messageElement = whereToWrite;
         HouseController.onLightsChange = onLightsChange;
 
-        HouseController.createHouse(houseContainer, houseMap);
         HouseController.createLights();
     },
 };
@@ -252,14 +236,20 @@ export class Timer {
 
 /**
  * The main function that initializes the house controller and handles the event when the user changes the value of a light.
- * @param {string} expectedLetter - The expected letter that the user needs to find.
+ * @param {Object} params - The parameters for initializing the house controller.
+ * @param {string} params.initialLetter - The initial letter is the first letter that the user will see in the message by default.
+ * @param {string} params.expectedLetter - The expected letter that the user needs to find.
+ * @param {HTMLElement} params.house - The container element where the house will be created.
+ * @param {HTMLElement} params.letter - The HTML element where the message will be displayed.
  */
-const CasitaDigital = (expectedLetter) => {
+const CasitaDigital = (params) => {
+    const { expectedLetter, house, letter: messageElement } = params;
+
     /**
      * Indicates whether there are pending changes.
      * @type {boolean}
      */
-    let areTherePendingChanges = false
+    let areTherePendingChanges = false;
 
     /**
      * Indicates if the user, in the previous state, has met the challenge requirements.
@@ -287,8 +277,8 @@ const CasitaDigital = (expectedLetter) => {
         }
 
         const messageMatches = hasApproved(houseController, lights);
-        const message = messageMatches  ? "¡Felicidades! Has encontrado la letra correcta." 
-                                        : "¡Oh no! Esa no es la letra correcta. Inténtalo de nuevo.";
+        const message = messageMatches ? "¡Felicidades! Has encontrado la letra correcta."
+            : "¡Oh no! Esa no es la letra correcta. Inténtalo de nuevo.";
 
         pgEvent.postToPg({
             event: messageMatches ? "SUCCESS" : "FAILURE",
@@ -304,26 +294,7 @@ const CasitaDigital = (expectedLetter) => {
     }
 
     const pgEvent = new PGEvent();
-    const house = document.getElementById('casa');
-    const squares = [
-        ['c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c'], 
-        ['c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'ti', 't', 't', 't', 't', 'td', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c'], 
-        ['c', 'c', 'c', 'c', 'c', 'c', 'c', 'ti', 't', 't', 't', 't', 't', 't', 'td', 'c', 'c', 'c', 'c', 'c', 'c', 'c'], 
-        ['c', 'c', 'c', 'c', 'c', 'c', 'ti', 't', 't', 'mensaje', 'n', 'n', 'n', 't', 't', 'td', 'c', 'c', 'c', 'c', 'c', 'c'],
-        ['c', 'c', 'c', 'c', 'c', 'ti', 't', 't', 't', 'n', 'n', 'n', 'n', 't', 't', 't', 'td', 'c', 'c', 'c', 'c', 'c'], 
-        ['c', 'c', 'c', 'c', 'ti', 't', 't', 't', 't', 'n', 'n', 'n', 'n', 't', 't', 't', 't', 'td', 'c', 'c', 'c', 'c'], 
-        ['c', 'c', 'c', 'ti', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 'td', 'c', 'c', 'c'], 
-        ['c', 'c', 'ti', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 't', 'td', 'c', 'c'], 
-        ['c', 'tiab', 'p', 'bl', 'bl', 'bl', 'bl', 'bl', 'bl', 'bl', 'bl', 'bl', 'bl', 'bl', 'bl', 'bl', 'bl', 'bl', 'bl', 'p', 'tdab', 'c'], 
-        ['c', 'c', 'p', 'bl', 'luz0', 'n', 'bl', 'luz1', 'n', 'bl', 'luz2', 'n', 'bl', 'luz3', 'n', 'bl', 'luz4', 'n', 'bl', 'p', 'c', 'c'], 
-        ['c', 'c', 'p', 'bl', 'n', 'n', 'bl', 'n', 'n', 'bl', 'n', 'n', 'bl', 'n', 'n', 'bl', 'n', 'n', 'bl', 'p', 'c', 'c'], 
-        ['v', 'v', 'p', 'bl', 'bl', 'bl', 'bl', 'bl', 'bl', 'bl', 'bl', 'bl', 'bl', 'bl', 'bl', 'bl', 'bl', 'bl', 'bl', 'p', 'v', 'v'], 
-        ['v', 'v', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'v', 'v'], 
-        ['v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v'], 
-        ['v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v', 'v'],
-    ];
-    const messageElement = document.getElementById("mensaje");
-    
+
     // Create the house table and set up the "onLightsChange" event handler,
     // which will be called when the user changes the value of a light to check if
     // the user has met the challenge requirements.
@@ -333,7 +304,7 @@ const CasitaDigital = (expectedLetter) => {
     const timer = new Timer(8_000, () => saveState(houseController, houseController.lights));
     timer.start();
 
-    houseController.init(house, squares, messageElement, (lights) => {
+    houseController.init(house, messageElement, (lights) => {
         // Restart the timer when the user changes the value of a light.
         areTherePendingChanges = true;
         timer.reset();
@@ -353,6 +324,12 @@ const CasitaDigital = (expectedLetter) => {
     pgEvent.getValues();
     if (pgEvent.data.lights) {
         houseController.setLightsValues(pgEvent.data.lights);
+    } else {
+        const initialLetter = params.initialLetter || " ";
+        console.log(houseController.translateMessageToLights(initialLetter))
+        houseController.setLightsValues(
+            houseController.translateMessageToLights(initialLetter),
+        );
     }
 }
 
