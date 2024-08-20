@@ -8,6 +8,7 @@ Bienvenido al **Repositorio de Misceláneas**, un conjunto diverso de proyectos 
   - [Tabla de Contenidos](#tabla-de-contenidos)
   - [Estructura del Repositorio](#estructura-del-repositorio)
   - [Requisitos Previos](#requisitos-previos)
+  - [Estructura del proyecto](#estructura-del-proyecto)
   - [Instalación y Configuración](#instalación-y-configuración)
   - [Construcción y Despliegue](#construcción-y-despliegue)
     - [Construye para Producción](#construye-para-producción)
@@ -48,6 +49,73 @@ Antes de comenzar, asegúrate de tener instalados los siguientes componentes en 
 - [Node.js](https://nodejs.org/) (versión 14 o superior)
 - [Vite](https://vitejs.dev/) (como herramienta de construcción y servidor de desarrollo)
 - [Git](https://git-scm.com/) (para clonar y gestionar el repositorio)
+
+## Estructura del proyecto
+
+
+<!-- 
+    Directorio: C:\Users\Mathias\Documents\DigitalHouse\miscelaneas
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----         11/6/2024     15:20                dist
+d-----         12/6/2024     10:18                node_modules
+d-----         12/6/2024     10:18                src
+
+
+PS C:\Users\Mathias\Documents\DigitalHouse\miscelaneas> Get-ChildItem -Directory -Recurse
+
+
+    Directorio: C:\Users\Mathias\Documents\DigitalHouse\miscelaneas
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----         11/6/2024     15:20                dist
+d-----         12/6/2024     10:18                node_modules
+d-----         12/6/2024     10:18                src
+
+
+    Directorio: C:\Users\Mathias\Documents\DigitalHouse\miscelaneas\node_modules
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----         11/6/2024     15:09                .vite
+
+
+    Directorio: C:\Users\Mathias\Documents\DigitalHouse\miscelaneas\src
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----         12/6/2024     10:18                casitacompleja
+d-----         12/6/2024     10:18                casitadigital
+d-----         12/6/2024     10:18                demoCasitaPalabras01
+d-----         12/6/2024     10:18                demoCasitaSimple01
+d-----         12/6/2024     10:18                demoCreadorLaberinto
+d-----         20/8/2024     11:08                shared -->
+
+El proyecto se estructura de la siguiente manera:
+
+- **`dist/`**: Directorio de salida donde se almacenan los archivos generados durante la construcción.
+- **`node_modules/`**: Directorio donde se almacenan las dependencias de Node.js.
+- **`src/`**: Directorio principal donde se encuentran los proyectos y ejercicios disponibles.
+
+En el directorio `src/`, encontrarás los siguientes subdirectorios, cada uno de los cuales contiene un proyecto o ejercicio independiente:
+
+- **`casitacompleja/`**: Proyecto demo de una casita digital compleja, haciendo uso de bits para formar palabras, utilizando selectores binarios.
+- **`casitadigital/`**: Proyecto demo de una casita digital simple, con luces que forman mensajes, utilizando selectores binarios.
+- **`demoCasitaPalabras01/`**: Proyecto demo de una casita digital con palabras, utilizando selectores binarios.
+- **`demoCasitaSimple01/`**: Proyecto demo de una casita digital simple, utilizando selectores binarios.
+- **`demoCreadorLaberinto/`**: Proyecto demo de un creador de laberintos legacy.
+- **`shared/`**: Directorio compartido con módulos y utilidades comunes para los proyectos.
+
+Cada proyecto contiene su propio código fuente, archivos de configuración y dependencias, permitiendo su ejecución y despliegue de forma independiente.
+
+Ahora bien, en shared se encuentra el código base compartido entre los proyectos, como los controladores de eventos y temporizadores, o el generador del ejercicio en sí.
+La idea es que cada ejercicio haga uso de un controlador expuesto en shared, para que el ejercicio en sí no tenga que preocuparse por la lógica como tal, sino solo de implementar una interfaz de usuario.
 
 ## Instalación y Configuración
 
