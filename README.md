@@ -52,51 +52,6 @@ Antes de comenzar, asegúrate de tener instalados los siguientes componentes en 
 
 ## Estructura del proyecto
 
-
-<!-- 
-    Directorio: C:\Users\Mathias\Documents\DigitalHouse\miscelaneas
-
-
-Mode                 LastWriteTime         Length Name
-----                 -------------         ------ ----
-d-----         11/6/2024     15:20                dist
-d-----         12/6/2024     10:18                node_modules
-d-----         12/6/2024     10:18                src
-
-
-PS C:\Users\Mathias\Documents\DigitalHouse\miscelaneas> Get-ChildItem -Directory -Recurse
-
-
-    Directorio: C:\Users\Mathias\Documents\DigitalHouse\miscelaneas
-
-
-Mode                 LastWriteTime         Length Name
-----                 -------------         ------ ----
-d-----         11/6/2024     15:20                dist
-d-----         12/6/2024     10:18                node_modules
-d-----         12/6/2024     10:18                src
-
-
-    Directorio: C:\Users\Mathias\Documents\DigitalHouse\miscelaneas\node_modules
-
-
-Mode                 LastWriteTime         Length Name
-----                 -------------         ------ ----
-d-----         11/6/2024     15:09                .vite
-
-
-    Directorio: C:\Users\Mathias\Documents\DigitalHouse\miscelaneas\src
-
-
-Mode                 LastWriteTime         Length Name
-----                 -------------         ------ ----
-d-----         12/6/2024     10:18                casitacompleja
-d-----         12/6/2024     10:18                casitadigital
-d-----         12/6/2024     10:18                demoCasitaPalabras01
-d-----         12/6/2024     10:18                demoCasitaSimple01
-d-----         12/6/2024     10:18                demoCreadorLaberinto
-d-----         20/8/2024     11:08                shared -->
-
 El proyecto se estructura de la siguiente manera:
 
 - **`dist/`**: Directorio de salida donde se almacenan los archivos generados durante la construcción.
