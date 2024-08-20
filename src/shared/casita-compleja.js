@@ -18,14 +18,14 @@ class CasitaDigitalCompleja {
     }
 
     /**
-     * Given a binary string, it returns the corresponding char
-     * from the availableChars array
+     * Dado un string binario, devuelve el char correspondiente
+     * del array availableChars o "_" si no se encuentra.
      * @param {string} binaryString
-     * @returns {string} char from availableChars
+     * @returns {string} char de availableChars o "_"
      */
     binaryStringToChar(binaryString) {
         const index = parseInt(binaryString, 2);
-        return this.availableChars[index];
+        return this.availableChars[index] !== undefined ? this.availableChars[index] : "_";
     }
 
     /**
@@ -89,18 +89,15 @@ class CasitaDigitalCompleja {
     }
 
     /**
-     * Updates the preview elements with the obtained word
-     * @param {HTMLElement} container
-     * @param {Array<Array<string>>} binaryArray
+     * Updates the preview element with the obtained word
+     * @param {HTMLElement} preview - The preview element
+     * @param {Array<Array<string>>} binaryArray - The binary array
      * @returns {void}
      */
-    updatePreviews(container, binaryArray) {
-        const previews = container.querySelectorAll(".binary-select__char-preview");
+    updatePreview(preview, binaryArray) {
         const binaryString = binaryArray.flat().join("");
         const obtainedWord = this.binaryStringToWord(binaryString);
-        previews.forEach((preview, index) => {
-            preview.textContent = obtainedWord[index];
-        });
+        preview.innerHTML = obtainedWord;
     }
 
     /**
@@ -163,7 +160,6 @@ class CasitaDigitalCompleja {
                 // Add the event listener
                 select.addEventListener("change", (e) => {
                     // Update the preview element with the obtained word
-                    this.updatePreviews(container, this.getBinaryStringFromSelects(container));
 
                     // Call the custom event listener.
                     onBinaryStringChange(this.getBinaryStringFromSelects(container));
@@ -176,12 +172,6 @@ class CasitaDigitalCompleja {
 
             // Append the char div to the container
             container.appendChild(charDiv);
-
-            // Finally, we create a preview element for the char
-            const preview = document.createElement("p");
-            preview.classList.add("binary-select__char-preview");
-            charDiv.appendChild(preview);
-            this.updatePreviews(container, this.getBinaryStringFromSelects(container));
         });
     }
 
@@ -204,31 +194,30 @@ class CasitaDigitalCompleja {
         }
     }
 }
-
 /**
  * Represents a CasitaCompleja object.
- * @param {string} expectedWord - The expected word that the user needs to find.
+ * @param {Object} params - The parameters for creating a CasitaCompleja object.
+ * @param {string} params.initialWord - The initial word that the user will see.
+ * @param {string} params.expectedWord - The expected word that the user needs to find.
+ * @params {HTMLElement} params.container - The container element for the CasitaCompleja object.
+ * @params {HTMLElement} params.preview - The preview element for the CasitaCompleja object.
  */
-const CasitaCompleja = (expectedWord) => {
+const CasitaCompleja = (params) => {
     // Define expectations.
     const availableChars = [
-        "?", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", 
-        "Ñ", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", 
+        "?", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
+        "Ñ", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
     ];
-    expectedWord = expectedWord.toUpperCase();
+    const expectedWord = params.expectedWord.toUpperCase();
 
     // Define initial state.
-    const container = document.getElementById("casita");
     const pgEvent = new PGEvent();
     let hasSucceded = false;
 
     // Create the generator, generate the UI and set the event listener,
     // so we can check if the user has succeded or not.
     const generator = new CasitaDigitalCompleja(expectedWord, availableChars);
-    generator.generateBinarySelects(container, (binaryArray) => {
-        // Obtain each preview element and append a ✅ or ❌ emoji.
-        const previews = container.querySelectorAll(".binary-select__char-preview");
-
+    generator.generateBinarySelects(params.container, (binaryArray) => {
         // Check if the obtained message is the expected one.
         const binaryString = binaryArray.flat().join("");
         const obtainedWord = generator.binaryStringToWord(binaryString);
@@ -257,13 +246,7 @@ const CasitaCompleja = (expectedWord) => {
 
         // Update the previews with the corresponding emoji.
         // Append the emoji to the preview element.
-        previews.forEach((preview, index) => {
-            const char = obtainedWord[index];
-            const emoji = char === expectedWord[index] ? "✅" : "❌";
-            if (!preview.textContent.includes(emoji)) {
-                preview.textContent = preview.textContent.replace(/[✅❌]/g, "") + emoji;
-            }
-        });
+        generator.updatePreview(params.preview, binaryArray);
     });
 
     // Load the initial state, if any.
@@ -271,6 +254,11 @@ const CasitaCompleja = (expectedWord) => {
     if (pgEvent.data.state?.selectors) {
         const binaryArray = pgEvent.data.state.selectors.match(/.{1,2}/g);
         generator.setBinarySelects(container, binaryArray);
+    } else {
+        const initialWord = params.initialWord.toUpperCase();
+        const binaryArray = generator.wordToBinaryString(initialWord).match(/.{1,2}/g);
+        generator.setBinarySelects(params.container, binaryArray);
+        generator.updatePreview(params.preview, binaryArray);
     }
 };
 
