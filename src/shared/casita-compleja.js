@@ -274,7 +274,7 @@ const CasitaCompleja = (params) => {
         generator.setBinarySelects(container, binaryArray);
         generator.updatePreview(params.preview, binaryArray);
     } else {
-        const initialWord = params.initialWord ? params.initialWord : expectedWord.replace(/[A-Z]/g, "?");
+        const initialWord = params.initialWord ? params.initialWord.toUpperCase() : expectedWord.replace(/[A-Z]/g, "?");
         const binaryArray = generator.wordToBinaryString(initialWord).match(/.{1,2}/g);
         generator.setBinarySelects(params.container, binaryArray);
         generator.updatePreview(params.preview, binaryArray);
