@@ -41,9 +41,9 @@ const HouseController = {
      * @type {Array<string>}
      */
     availableChars: [
-        " ", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
+        "?", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
         "Ñ", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-        ".", ",", "!", "?",
+        ".", ",", "!",
     ],
 
     /**
@@ -103,14 +103,11 @@ const HouseController = {
      */
     updateText: (messageNumber) => {
         const message = HouseController.availableChars[messageNumber];
-        if (HouseController.messageElement.innerText.length > 3) {
-            HouseController.messageElement.innerHTML = HouseController.messageElement.innerHTML.slice(0, -1);
-            setTimeout(() => {
-                HouseController.updateText(messageNumber);
-            }, 25);
-        } else {
-            HouseController.messageElement.innerHTML += message;
+        if (message === undefined) {
+            HouseController.messageElement.textContent = "?";
+            return;
         }
+        HouseController.messageElement.textContent = message;
     },
 
     /**
@@ -123,12 +120,11 @@ const HouseController = {
             let value = light.value;
             message += value;
 
-            if (value == "1") {
-                light.classList.add("prendida");
-                light.classList.remove("apagada");
+            // Change the class, based on the selection (binary-select__select--selected).
+            if (value === "1") {
+                light.classList.add("binary-select__select--selected");
             } else {
-                light.classList.remove("prendida");
-                light.classList.add("apagada");
+                light.classList.remove("binary-select__select--selected");
             }
         }
         let messageNumber = parseInt(message, 2); // Binary to decimal
@@ -146,6 +142,8 @@ const HouseController = {
 
         for (let i = 0; i < numLights; i++) {
             let selectElement = document.createElement("SELECT");
+            selectElement.classList.add("binary-select__select");
+
             selectElement.addEventListener("change", () => {
                 HouseController.onLightsChange(HouseController.lights);
                 HouseController.updateMessage();
