@@ -272,8 +272,9 @@ const CasitaCompleja = (params) => {
     if (pgEvent.data.state?.selectors) {
         const binaryArray = pgEvent.data.state.selectors.match(/.{1,2}/g);
         generator.setBinarySelects(container, binaryArray);
+        generator.updatePreview(params.preview, binaryArray);
     } else {
-        const initialWord = params.initialWord.toUpperCase();
+        const initialWord = params.initialWord ? params.initialWord : expectedWord.replace(/[A-Z]/g, "?");
         const binaryArray = generator.wordToBinaryString(initialWord).match(/.{1,2}/g);
         generator.setBinarySelects(params.container, binaryArray);
         generator.updatePreview(params.preview, binaryArray);
