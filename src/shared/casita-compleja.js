@@ -156,10 +156,10 @@ class CasitaDigitalCompleja {
                     select.appendChild(option);
                 });
 
-
                 // Add the event listener
                 select.addEventListener("change", (e) => {
-                    // Update the preview element with the obtained word
+                    // Update the class for the select.
+                    this.toggleSelect(select);
 
                     // Call the custom event listener.
                     onBinaryStringChange(this.getBinaryStringFromSelects(container));
@@ -173,6 +173,19 @@ class CasitaDigitalCompleja {
             // Append the char div to the container
             container.appendChild(charDiv);
         });
+    }
+
+    /**
+     * Toggle the class "binary-select__select--selected" for a SELECT element
+     * @param {HTMLElement} select
+     * @returns {void}
+     */
+    toggleSelect(select) {
+        if (select.value === "1") {
+            select.classList.add("binary-select__select--selected");
+        } else {
+            select.classList.remove("binary-select__select--selected");
+        }
     }
 
     /**
@@ -192,6 +205,11 @@ class CasitaDigitalCompleja {
                 selects[i * charBinary.length + j].value = charBinary[j];
             }
         }
+
+        // Update the class for the selects.
+        selects.forEach((select) => {
+            this.toggleSelect(select);
+        });
     }
 }
 /**
