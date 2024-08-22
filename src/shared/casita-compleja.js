@@ -306,5 +306,5 @@ const FreeStaticCasitaCompleja = (params) => {
     });
 };
 
-export default CasitaDigitalCompleja;
+export default CasitaCompleja;
 export { FreeStaticCasitaCompleja };
