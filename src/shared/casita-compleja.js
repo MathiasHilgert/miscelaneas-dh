@@ -215,8 +215,9 @@ class CasitaDigitalCompleja {
 /**
  * Represents a CasitaCompleja object.
  * @param {Object} params - The parameters for creating a CasitaCompleja object.
- * @param {string} params.initialWord - The initial word that the user will see.
- * @param {string} params.expectedWord - The expected word that the user needs to find.
+  * @param {string} params.initialWord - The initial word is the word letter that the user will see in the message by default.
+ * @param {string} params.expectedWord - The expected word that the user needs to find. If free mode is enabled, this parameter is not used.
+ * @param {boolean} params.isFreeMode - Indicates if the user is in free mode, that means, the user can change the lights without restrictions or expectations.
  * @params {HTMLElement} params.container - The container element for the CasitaCompleja object.
  * @params {HTMLElement} params.preview - The preview element for the CasitaCompleja object.
  */
@@ -236,10 +237,19 @@ const CasitaCompleja = (params) => {
     // so we can check if the user has succeded or not.
     const generator = new CasitaDigitalCompleja(expectedWord, availableChars);
     generator.generateBinarySelects(params.container, (binaryArray) => {
+
         // Check if the obtained message is the expected one.
         const binaryString = binaryArray.flat().join("");
         const obtainedWord = generator.binaryStringToWord(binaryString);
 
+        // Check if the user is in free mode.
+        // If the user is in free mode, we don't need to check the expected word.
+        if (params.isFreeMode) {
+            generator.updatePreview(params.preview, binaryArray);
+            return;
+        }
+
+        // The user is not in free mode, so we need to check the expected word.
         if (obtainedWord !== expectedWord) {
             pgEvent.postToPg({
                 event: "FAILURE",
@@ -261,24 +271,40 @@ const CasitaCompleja = (params) => {
             });
             hasSucceded = true;
         }
-
-        // Update the previews with the corresponding emoji.
-        // Append the emoji to the preview element.
         generator.updatePreview(params.preview, binaryArray);
     });
 
     // Load the initial state, if any.
+    let binaryArray = [];
     pgEvent.getValues();
     if (pgEvent.data.state?.selectors) {
-        const binaryArray = pgEvent.data.state.selectors.match(/.{1,2}/g);
-        generator.setBinarySelects(container, binaryArray);
-        generator.updatePreview(params.preview, binaryArray);
+        binaryArray = pgEvent.data.state.selectors.match(/.{1,2}/g);
     } else {
-        const initialWord = params.initialWord ? params.initialWord.toUpperCase() : expectedWord.replace(/[A-Z]/g, "?");
-        const binaryArray = generator.wordToBinaryString(initialWord).match(/.{1,2}/g);
-        generator.setBinarySelects(params.container, binaryArray);
-        generator.updatePreview(params.preview, binaryArray);
+        binaryArray = generator.wordToBinaryString(
+            params.initialWord
+                ? params.initialWord.toUpperCase()
+                : expectedWord.replace(/[A-Z]/g, "?")
+        ).match(/.{1,2}/g);
     }
+    generator.setBinarySelects(params.container, binaryArray);
+    generator.updatePreview(params.preview, binaryArray);
 };
 
-export default CasitaCompleja;
+/**
+ * Represents a CasitaCompleja object, with static generation and free mode.
+ * @param {Object} params - The parameters for creating a CasitaCompleja object.
+ * @param {number} params.housesAmount - The amount of houses to generate.
+ * @param {HTMLElement} params.container - The container element for the CasitaCompleja object.
+ * @param {HTMLElement} params.preview - The preview element for the CasitaCompleja object.
+ */
+const FreeStaticCasitaCompleja = (params) => {
+    CasitaCompleja({
+        expectedWord: "?".repeat(params.housesAmount),
+        isFreeMode: true,
+        container: params.container,
+        preview: params.preview,
+    });
+};
+
+export default CasitaDigitalCompleja;
+export { FreeStaticCasitaCompleja };
