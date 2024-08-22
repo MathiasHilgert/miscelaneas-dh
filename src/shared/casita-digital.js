@@ -236,7 +236,8 @@ export class Timer {
  * The main function that initializes the house controller and handles the event when the user changes the value of a light.
  * @param {Object} params - The parameters for initializing the house controller.
  * @param {string} params.initialLetter - The initial letter is the first letter that the user will see in the message by default.
- * @param {string} params.expectedLetter - The expected letter that the user needs to find.
+ * @param {string} params.expectedLetter - The expected letter that the user needs to find. If free mode is enabled, this parameter is not used.
+ * @param {boolean} params.isFreeMode - Indicates if the user is in free mode, that means, the user can change the lights without restrictions or expectations.
  * @param {HTMLElement} params.house - The container element where the house will be created.
  * @param {HTMLElement} params.letter - The HTML element where the message will be displayed.
  */
@@ -303,6 +304,12 @@ const CasitaDigital = (params) => {
     timer.start();
 
     houseController.init(house, messageElement, (lights) => {
+        // Check if the exercise is in free mode.
+        // If the exercise is in free mode, we don't want to save the state.
+        if (params.isFreeMode) {
+            return;
+        }
+
         // Restart the timer when the user changes the value of a light.
         areTherePendingChanges = true;
         timer.reset();
@@ -324,7 +331,6 @@ const CasitaDigital = (params) => {
         houseController.setLightsValues(pgEvent.data.lights);
     } else {
         const initialLetter = params.initialLetter || " ";
-        console.log(houseController.translateMessageToLights(initialLetter))
         houseController.setLightsValues(
             houseController.translateMessageToLights(initialLetter),
         );

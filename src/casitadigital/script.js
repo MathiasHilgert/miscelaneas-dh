@@ -6,5 +6,6 @@ window.onload = () => {
         expectedLetter: "B",
         house: document.getElementById("casa"),
         letter: document.getElementById("mensaje"),
+        isFreeMode: true,
     });
 };
