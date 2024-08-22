@@ -1,1 +1,0 @@
-import"./modulepreload-polyfill-ec808ebb.js";import{C as e}from"./casita-compleja-4b548b82.js";window.onload=()=>{e({initialWord:"NA???AL",expectedWord:"NATURAL",container:document.getElementById("casita"),preview:document.getElementById("preview")})};
