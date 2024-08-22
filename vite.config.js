@@ -11,11 +11,17 @@ export default defineConfig({
     rollupOptions: {
       input: {
         casitadigital: resolve(root, 'casitadigital/index.html'),
+        casitadigitalE1: resolve(root, 'casita_digital_E1/index.html'),
+        casitadigitalE1: resolve(root, 'casita_digital_E2/index.html'),
+        casitadigital03: resolve(root, 'casita_digital_03/index.html'),
+        casitadigital04: resolve(root, 'casita_digital_04/index.html'),
+        casitadigital05: resolve(root, 'casita_digital_05/index.html'),
+        casitadigitalE1: resolve(root, 'casita_digital_06/index.html'),
+        casitadigitalE1: resolve(root, 'casita_digital_07/index.html'),
+        casitadigitalE1: resolve(root, 'casita_digital_08/index.html'),
         casitacompleja: resolve(root, 'casitacompleja/index.html'),
-        
         demoCasitaSimple01: resolve(root, 'demoCasitaSimple01/index.html'),
         demoCasitaPalabras01: resolve(root, 'demoCasitaPalabras01/index.html'),
-
         demoCreadorLaberinto: resolve(root, 'demoCreadorLaberinto/index.html'),
       },
     },

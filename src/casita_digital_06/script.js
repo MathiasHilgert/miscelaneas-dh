@@ -1,9 +1,9 @@
-import { FreeStaticCasitaCompleja } from "../shared/casita-compleja";
+import CasitaCompleja from "../shared/casita-compleja";
 
 window.onload = () => {
     CasitaCompleja({
-        initialWord: "DIGITAL",
-        expectedWord: "DIGITAL",
+        initialWord: "ALGO????O",
+        expectedWord: "ALGORITMO",
         container: document.getElementById("casita"),
         preview: document.getElementById("preview"),
     });
