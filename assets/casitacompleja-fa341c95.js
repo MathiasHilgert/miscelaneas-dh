@@ -1,0 +1,1 @@
+import"./modulepreload-polyfill-ec808ebb.js";window.onload=()=>{CasitaCompleja({initialWord:"DIGITAL",expectedWord:"DIGITAL",container:document.getElementById("casita"),preview:document.getElementById("preview")})};
