@@ -2,8 +2,7 @@ import CasitaDigital from "../shared/casita-digital";
 
 window.onload = () => {
     CasitaDigital({
-        initialLetter: "A",
-        expectedLetter: "B",
+        expectedLetter: "L",
         house: document.getElementById("casa"),
         letter: document.getElementById("mensaje"),
     });
