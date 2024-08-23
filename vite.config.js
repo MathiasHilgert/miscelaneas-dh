@@ -12,7 +12,7 @@ export default defineConfig({
       input: {
         casitadigital: resolve(root, 'casitadigital/index.html'),
         casitadigitalE1: resolve(root, 'casita_digital_E1/index.html'),
-        casitadigitalE1: resolve(root, 'casita_digital_E2/index.html'),
+        casitadigitalE2: resolve(root, 'casita_digital_E2/index.html'),
         casitadigital01: resolve(root, 'casita_digital_01/index.html'),
         casitadigital02: resolve(root, 'casita_digital_02/index.html'),
         casitadigital03: resolve(root, 'casita_digital_03/index.html'),
