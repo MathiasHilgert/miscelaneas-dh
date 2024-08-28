@@ -214,12 +214,22 @@ class CasitaDigitalCompleja {
 }
 /**
  * Represents a CasitaCompleja object.
+ * 
+ * This object can receive a callback function that will be called when the user changes the house.
+ * The callback function will return an array of objects, each one with the following structure:
+ *  {
+ *      { index: "1", htmlElement: div#house-1, isOK: true },
+ *      { index: "2", htmlElement: div#house-2, isOK: true },
+ *      { index: "3", htmlElement: div#house-3, isOK: false },
+ *  }
+ * 
  * @param {Object} params - The parameters for creating a CasitaCompleja object.
-  * @param {string} params.initialWord - The initial word is the word letter that the user will see in the message by default.
+ * @param {string} params.initialWord - The initial word is the word letter that the user will see in the message by default.
  * @param {string} params.expectedWord - The expected word that the user needs to find. If free mode is enabled, this parameter is not used.
  * @param {boolean} params.isFreeMode - Indicates if the user is in free mode, that means, the user can change the lights without restrictions or expectations.
- * @params {HTMLElement} params.container - The container element for the CasitaCompleja object.
- * @params {HTMLElement} params.preview - The preview element for the CasitaCompleja object.
+ * @param {Function} params.onHouseChange - The function that will be called when the user changes the house.
+ * @param {HTMLElement} params.container - The container element for the CasitaCompleja object.
+ * @param {HTMLElement} params.preview - The preview element for the CasitaCompleja object.
  */
 const CasitaCompleja = (params) => {
     // Define expectations.
@@ -288,6 +298,23 @@ const CasitaCompleja = (params) => {
     }
     generator.setBinarySelects(params.container, binaryArray);
     generator.updatePreview(params.preview, binaryArray);
+
+    // Call the callback function.
+    if (!params.onHouseChange) return;
+    const allSelects = params.container.querySelectorAll(".binary-select__select");
+    const bitsNeeded = generator.getBitsNeeded();
+
+    const results = Array.from({ length: Math.ceil(allSelects.length / bitsNeeded) }, (_, i) => {
+        const group = Array.from(allSelects).slice(i * bitsNeeded, (i + 1) * bitsNeeded);
+        return {
+            index: (i + 1).toString(),
+            htmlElement: group[0].closest(".binary-select__char"),
+            isOK: hasSucceded,
+        };
+    });
+
+    params.onHouseChange(results);
+
 };
 
 /**
@@ -296,6 +323,7 @@ const CasitaCompleja = (params) => {
  * @param {number} params.housesAmount - The amount of houses to generate.
  * @param {HTMLElement} params.container - The container element for the CasitaCompleja object.
  * @param {HTMLElement} params.preview - The preview element for the CasitaCompleja object.
+ * @param {Function} params.onHouseChange - The function that will be called when the user changes the house.
  */
 const FreeStaticCasitaCompleja = (params) => {
     CasitaCompleja({
@@ -303,6 +331,7 @@ const FreeStaticCasitaCompleja = (params) => {
         isFreeMode: true,
         container: params.container,
         preview: params.preview,
+        onHouseChange: params.onHouseChange,
     });
 };
 
