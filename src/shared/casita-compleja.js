@@ -246,6 +246,7 @@ const CasitaCompleja = (params) => {
     // Create the generator, generate the UI and set the event listener,
     // so we can check if the user has succeded or not.
     const generator = new CasitaDigitalCompleja(expectedWord, availableChars);
+
     generator.generateBinarySelects(params.container, (binaryArray) => {
 
         // Check if the obtained message is the expected one.
@@ -309,12 +310,13 @@ const CasitaCompleja = (params) => {
         return {
             index: (i + 1).toString(),
             htmlElement: group[0].closest(".binary-select__char"),
-            isOK: hasSucceded,
+            isOK: generator.binaryStringToChar(
+                group.map(select => select.value).join(""),
+            ) === expectedWord[i],
         };
     });
 
     params.onHouseChange(results);
-
 };
 
 /**
