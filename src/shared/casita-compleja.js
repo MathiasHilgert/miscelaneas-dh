@@ -90,6 +90,12 @@ class CasitaDigitalCompleja {
 
     /**
      * Updates the preview element with the obtained word
+     * 
+     * It generates the following HTML structure in the given parent element:
+     * <div class="char-preview">
+     *    <span class="char-preview__char">A</span>
+     * </div>
+     * 
      * @param {HTMLElement} preview - The preview element
      * @param {Array<Array<string>>} binaryArray - The binary array
      * @returns {void}
@@ -97,7 +103,23 @@ class CasitaDigitalCompleja {
     updatePreview(preview, binaryArray) {
         const binaryString = binaryArray.flat().join("");
         const obtainedWord = this.binaryStringToWord(binaryString);
-        preview.innerHTML = obtainedWord;
+
+        // Split the obtained word into an array of chars
+        const obtainedWordChars = obtainedWord.split("");
+
+        // Create a div for each char
+        preview.innerHTML = "";
+        obtainedWordChars.map((char) => {
+            const charDiv = document.createElement("div");
+            charDiv.classList.add("char-preview");
+
+            const charSpan = document.createElement("span");
+            charSpan.classList.add("char-preview__char");
+            charSpan.textContent = char;
+
+            charDiv.appendChild(charSpan);
+            preview.appendChild(charDiv);
+        });
     }
 
     /**
@@ -307,12 +329,14 @@ const CasitaCompleja = (params) => {
 
     const results = Array.from({ length: Math.ceil(allSelects.length / bitsNeeded) }, (_, i) => {
         const group = Array.from(allSelects).slice(i * bitsNeeded, (i + 1) * bitsNeeded);
+        const actualChar = generator.binaryStringToChar(
+            group.map(select => select.value).join(""),
+        );
         return {
             index: (i + 1).toString(),
             htmlElement: group[0].closest(".binary-select__char"),
-            isOK: generator.binaryStringToChar(
-                group.map(select => select.value).join(""),
-            ) === expectedWord[i],
+            isOK: actualChar === expectedWord[i],
+            actualChar: actualChar,
         };
     });
 
