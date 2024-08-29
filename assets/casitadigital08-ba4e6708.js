@@ -1,1 +1,0 @@
-import"./pg-event-8842ce7a.js";import{C as e}from"./casita-compleja-7695f044.js";window.onload=()=>{e({initialWord:"NA???AL",expectedWord:"NATURAL",container:document.getElementById("casita"),preview:document.getElementById("preview")})};
