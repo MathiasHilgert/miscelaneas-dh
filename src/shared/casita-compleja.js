@@ -258,7 +258,6 @@ const CasitaCompleja = (params) => {
                 index: (i + 1).toString(),
                 htmlElement: group[0].closest(".binary-select__char"),
                 isOK: actualChar === expectedWord[i],
-                actualChar: actualChar,
             };
         });
 
