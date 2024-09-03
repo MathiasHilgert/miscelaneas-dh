@@ -299,10 +299,11 @@ const CasitaCompleja = (params) => {
 
     const results = Array.from({ length: Math.ceil(allSelects.length / bitsNeeded) }, (_, i) => {
         const group = Array.from(allSelects).slice(i * bitsNeeded, (i + 1) * bitsNeeded);
+        const actualChar = generator.binaryStringToChar(group.map(select => select.value).join(""));
         return {
             index: (i + 1).toString(),
             htmlElement: group[0].closest(".binary-select__char"),
-            isOK: hasSucceded,
+            isOK: actualChar === expectedWord[i],
         };
     });
 
