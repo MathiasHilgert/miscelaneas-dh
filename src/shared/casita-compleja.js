@@ -234,6 +234,18 @@ class CasitaDigitalCompleja {
         });
     }
 }
+
+/**
+ * Creates a CasitaCompleja object.
+ *
+ * @param {Object} params - The parameters for creating a CasitaCompleja object.
+ * @param {string} params.initialWord - The initial word shown by default.
+ * @param {string} params.expectedWord - The word the user needs to find. Not used if free mode is enabled.
+ * @param {boolean} params.isFreeMode - Indicates if the user is in free mode, allowing unrestricted changes.
+ * @param {Function} params.onHouseChange - Callback function called when the house changes.
+ * @param {HTMLElement} params.container - The container element for the CasitaCompleja object.
+ * @param {HTMLElement} params.preview - The preview element for the CasitaCompleja object.
+ */
 const CasitaCompleja = (params) => {
     const availableChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZÑ?".split("");
     const expectedWord = params.expectedWord.toUpperCase();
@@ -242,26 +254,29 @@ const CasitaCompleja = (params) => {
 
     const generator = new CasitaDigitalCompleja(expectedWord, availableChars);
 
-    const evaluateWord = (binaryArray) => {
-        const binaryString = binaryArray.flat().join("");
-        const obtainedWord = generator.binaryStringToWord(binaryString);
-
-        if (!params.onHouseChange) return;
-
-        const allSelects = params.container.querySelectorAll(".binary-select__select");
+    const calculateResults = (allSelects) => {
         const bitsNeeded = generator.getBitsNeeded();
-
-        const results = Array.from({ length: Math.ceil(allSelects.length / bitsNeeded) }, (_, i) => {
+        return Array.from({ length: Math.ceil(allSelects.length / bitsNeeded) }, (_, i) => {
             const group = Array.from(allSelects).slice(i * bitsNeeded, (i + 1) * bitsNeeded);
             const actualChar = generator.binaryStringToChar(group.map(select => select.value).join(""));
             return {
                 index: (i + 1).toString(),
                 htmlElement: group[0].closest(".binary-select__char"),
                 isOK: actualChar === expectedWord[i],
+                actualChar: actualChar,
             };
         });
+    };
 
-        params.onHouseChange(results);
+    const evaluateWord = (binaryArray) => {
+        const binaryString = binaryArray.flat().join("");
+        const obtainedWord = generator.binaryStringToWord(binaryString);
+
+        if (params.onHouseChange) {
+            const allSelects = params.container.querySelectorAll(".binary-select__select");
+            const results = calculateResults(allSelects);
+            params.onHouseChange(results);
+        }
 
         if (params.isFreeMode) {
             generator.updatePreview(params.preview, binaryArray);
@@ -292,23 +307,13 @@ const CasitaCompleja = (params) => {
     generator.setBinarySelects(params.container, binaryArray);
     generator.updatePreview(params.preview, binaryArray);
 
-    if (!params.onHouseChange) return;
-
-    const allSelects = params.container.querySelectorAll(".binary-select__select");
-    const bitsNeeded = generator.getBitsNeeded();
-
-    const results = Array.from({ length: Math.ceil(allSelects.length / bitsNeeded) }, (_, i) => {
-        const group = Array.from(allSelects).slice(i * bitsNeeded, (i + 1) * bitsNeeded);
-        const actualChar = generator.binaryStringToChar(group.map(select => select.value).join(""));
-        return {
-            index: (i + 1).toString(),
-            htmlElement: group[0].closest(".binary-select__char"),
-            isOK: actualChar === expectedWord[i],
-        };
-    });
-
-    params.onHouseChange(results);
+    if (params.onHouseChange) {
+        const allSelects = params.container.querySelectorAll(".binary-select__select");
+        const results = calculateResults(allSelects);
+        params.onHouseChange(results);
+    }
 };
+
 
 /**
  * Represents a CasitaCompleja object, with static generation and free mode.
