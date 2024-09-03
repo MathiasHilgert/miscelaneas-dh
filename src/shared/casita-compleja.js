@@ -234,56 +234,26 @@ class CasitaDigitalCompleja {
         });
     }
 }
-/**
- * Represents a CasitaCompleja object.
- * 
- * This object can receive a callback function that will be called when the user changes the house.
- * The callback function will return an array of objects, each one with the following structure:
- *  {
- *      { index: "1", htmlElement: div#house-1, isOK: true },
- *      { index: "2", htmlElement: div#house-2, isOK: true },
- *      { index: "3", htmlElement: div#house-3, isOK: false },
- *  }
- * 
- * @param {Object} params - The parameters for creating a CasitaCompleja object.
- * @param {string} params.initialWord - The initial word is the word letter that the user will see in the message by default.
- * @param {string} params.expectedWord - The expected word that the user needs to find. If free mode is enabled, this parameter is not used.
- * @param {boolean} params.isFreeMode - Indicates if the user is in free mode, that means, the user can change the lights without restrictions or expectations.
- * @param {Function} params.onHouseChange - The function that will be called when the user changes the house.
- * @param {HTMLElement} params.container - The container element for the CasitaCompleja object.
- * @param {HTMLElement} params.preview - The preview element for the CasitaCompleja object.
- */
 const CasitaCompleja = (params) => {
-    // Define expectations.
-    const availableChars = [
-        "?", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
-        "Ñ", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-    ];
+    const availableChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZÑ?".split("");
     const expectedWord = params.expectedWord.toUpperCase();
-
-    // Define initial state.
     const pgEvent = new PGEvent();
     let hasSucceded = false;
 
-    // Create the generator, generate the UI and set the event listener,
-    // so we can check if the user has succeded or not.
     const generator = new CasitaDigitalCompleja(expectedWord, availableChars);
 
-    generator.generateBinarySelects(params.container, (binaryArray) => {
-        // Check if the obtained message is the expected one.
+    const evaluateWord = (binaryArray) => {
         const binaryString = binaryArray.flat().join("");
         const obtainedWord = generator.binaryStringToWord(binaryString);
 
-        // Call the callback function.
         if (!params.onHouseChange) return;
+
         const allSelects = params.container.querySelectorAll(".binary-select__select");
         const bitsNeeded = generator.getBitsNeeded();
 
         const results = Array.from({ length: Math.ceil(allSelects.length / bitsNeeded) }, (_, i) => {
             const group = Array.from(allSelects).slice(i * bitsNeeded, (i + 1) * bitsNeeded);
-            const actualChar = generator.binaryStringToChar(
-                group.map(select => select.value).join(""),
-            );
+            const actualChar = generator.binaryStringToChar(group.map(select => select.value).join(""));
             return {
                 index: (i + 1).toString(),
                 htmlElement: group[0].closest(".binary-select__char"),
@@ -294,65 +264,51 @@ const CasitaCompleja = (params) => {
 
         params.onHouseChange(results);
 
-        // Check if the user is in free mode.
-        // If the user is in free mode, we don't need to check the expected word.
         if (params.isFreeMode) {
             generator.updatePreview(params.preview, binaryArray);
             return;
         }
 
-        // The user is not in free mode, so we need to check the expected word.
-        if (obtainedWord !== expectedWord) {
-            pgEvent.postToPg({
-                event: "FAILURE",
-                message: "¡Oh no! Esa no es la palabra correcta. Inténtalo de nuevo.",
-                reasons: [],
-                state: JSON.stringify({
-                    selectors: binaryString,
-                })
-            })
-            hasSucceded = false;
-        } else {
-            pgEvent.postToPg({
-                event: "SUCCESS",
-                message: "Bien hecho! Has encontrado la letra correcta.",
-                reasons: [],
-                state: JSON.stringify({
-                    selectors: binaryString,
-                })
-            });
-            hasSucceded = true;
-        }
-        generator.updatePreview(params.preview, binaryArray);
-    });
+        const event = obtainedWord !== expectedWord ? "FAILURE" : "SUCCESS";
+        const message = obtainedWord !== expectedWord
+            ? "¡Oh no! Esa no es la palabra correcta. Inténtalo de nuevo."
+            : "Bien hecho! Has encontrado la letra correcta.";
+        pgEvent.postToPg({
+            event, message,
+            reasons: [],
+            state: JSON.stringify({ selectors: binaryString })
+        });
 
-    // Load the initial state, if any.
+        hasSucceded = obtainedWord === expectedWord;
+        generator.updatePreview(params.preview, binaryArray);
+    };
+
+    generator.generateBinarySelects(params.container, evaluateWord);
+
     let binaryArray = [];
     pgEvent.getValues();
-    if (pgEvent.data.state?.selectors) {
-        binaryArray = pgEvent.data.state.selectors.match(/.{1,2}/g);
-    } else {
-        binaryArray = generator.wordToBinaryString(
-            params.initialWord
-                ? params.initialWord.toUpperCase()
-                : expectedWord.replace(/[A-Z]/g, "?")
-        ).match(/.{1,2}/g);
-    }
+    binaryArray = pgEvent.data.state?.selectors?.match(/.{1,2}/g)
+        || generator.wordToBinaryString(params.initialWord?.toUpperCase() || expectedWord.replace(/[A-Z]/g, "?")).match(/.{1,2}/g);
+
     generator.setBinarySelects(params.container, binaryArray);
     generator.updatePreview(params.preview, binaryArray);
-    params.onHouseChange(
-        Array.from(params.container.querySelectorAll(".binary-select__char")).map((charDiv, i) => {
-            const actualChar = generator.binaryStringToChar(binaryArray[i]);
-            return {
-                index: (i + 1).toString(),
-                htmlElement: charDiv,
-                isOK: actualChar === expectedWord[i],
-                actualChar: actualChar,
-            };
-        })
-    );
-};
 
+    if (!params.onHouseChange) return;
+
+    const allSelects = params.container.querySelectorAll(".binary-select__select");
+    const bitsNeeded = generator.getBitsNeeded();
+
+    const results = Array.from({ length: Math.ceil(allSelects.length / bitsNeeded) }, (_, i) => {
+        const group = Array.from(allSelects).slice(i * bitsNeeded, (i + 1) * bitsNeeded);
+        return {
+            index: (i + 1).toString(),
+            htmlElement: group[0].closest(".binary-select__char"),
+            isOK: hasSucceded,
+        };
+    });
+
+    params.onHouseChange(results);
+};
 
 /**
  * Represents a CasitaCompleja object, with static generation and free mode.
