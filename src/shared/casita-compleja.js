@@ -270,12 +270,9 @@ const CasitaCompleja = (params) => {
     const generator = new CasitaDigitalCompleja(expectedWord, availableChars);
 
     generator.generateBinarySelects(params.container, (binaryArray) => {
-
         // Check if the obtained message is the expected one.
         const binaryString = binaryArray.flat().join("");
         const obtainedWord = generator.binaryStringToWord(binaryString);
-
-
 
         // Call the callback function.
         if (!params.onHouseChange) return;
@@ -343,6 +340,17 @@ const CasitaCompleja = (params) => {
     }
     generator.setBinarySelects(params.container, binaryArray);
     generator.updatePreview(params.preview, binaryArray);
+    params.onHouseChange(
+        Array.from(params.container.querySelectorAll(".binary-select__char")).map((charDiv, i) => {
+            const actualChar = generator.binaryStringToChar(binaryArray[i]);
+            return {
+                index: (i + 1).toString(),
+                htmlElement: charDiv,
+                isOK: actualChar === expectedWord[i],
+                actualChar: actualChar,
+            };
+        })
+    );
 };
 
 
