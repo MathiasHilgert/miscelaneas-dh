@@ -267,7 +267,7 @@ const CasitaCompleja = (params) => {
                 htmlElement: group[0].closest(".binary-select__char"),
                 isOK: actualChar === expectedWord[i],
                 actualChar: actualChar,
-                previewElement: params.preview.children[i].children[0]
+                previewElement: params.preview.children[i],
             };
         });
     };
