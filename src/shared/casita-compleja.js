@@ -247,7 +247,10 @@ class CasitaDigitalCompleja {
  * @param {HTMLElement} params.preview - The preview element for the CasitaCompleja object.
  */
 const CasitaCompleja = (params) => {
-    const availableChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZÑ?".split("");
+    const availableChars = [
+        "?", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
+        "Ñ", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+    ];
     const expectedWord = params.expectedWord.toUpperCase();
     const pgEvent = new PGEvent();
     let hasSucceded = false;
@@ -264,6 +267,7 @@ const CasitaCompleja = (params) => {
                 htmlElement: group[0].closest(".binary-select__char"),
                 isOK: actualChar === expectedWord[i],
                 actualChar: actualChar,
+                previewElement: group[0].closest(".binary-select__char").querySelector(".binary-select__char-preview"),
             };
         });
     };
