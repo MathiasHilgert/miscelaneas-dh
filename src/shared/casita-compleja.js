@@ -18,6 +18,24 @@ class CasitaDigitalCompleja {
     }
 
     /**
+     * Create the UI elements.
+     * @param {HTMLElement} container - The container element for the CasitaCompleja object.
+     * @param {HTMLElement} preview - The preview element for the CasitaCompleja object.
+     * @param {Array<Array<string>>} binaryArray - The binary array.
+     * @param {Function} onBinaryStringChange - The function that will be called when the user changes the binary string.
+     * @returns {void}
+     */
+    createUI(container, preview, binaryArray, onBinaryStringChange) {
+        const binaryString = binaryArray.flat().join("");
+        const obtainedWord = this.binaryStringToWord(binaryString);
+        const obtainedWordChars = obtainedWord.split("");
+        
+        // Create the UI elements
+        this.generateBinarySelects(container, onBinaryStringChange);
+        this.createPreview(preview, obtainedWordChars);
+    }
+
+    /**
      * Dado un string binario, devuelve el char correspondiente
      * del array availableChars o "_" si no se encuentra.
      * @param {string} binaryString
@@ -89,6 +107,32 @@ class CasitaDigitalCompleja {
     }
 
     /**
+     * Create the preview element structure.
+     * 
+     * It generates the following HTML structure in the given parent element:
+     * <div class="char-preview">
+     *   <span class="char-preview__char">A</span>
+     * </div>
+     * 
+     * @param {HTMLElement} parent - The parent element
+     * @param {Array<string>} obtainedWordChars - The obtained word chars
+     * @returns {void}
+     */
+    createPreview(parent, obtainedWordChars) {
+        obtainedWordChars.map((char) => {
+            const charDiv = document.createElement("div");
+            charDiv.classList.add("char-preview");
+
+            const charSpan = document.createElement("span");
+            charSpan.classList.add("char-preview__char");
+            charSpan.textContent = char;
+
+            charDiv.appendChild(charSpan);
+            parent.appendChild(charDiv);
+        });
+    }
+
+    /**
      * Updates the preview element with the obtained word
      * 
      * It generates the following HTML structure in the given parent element:
@@ -107,18 +151,12 @@ class CasitaDigitalCompleja {
         // Split the obtained word into an array of chars
         const obtainedWordChars = obtainedWord.split("");
 
-        // Create a div for each char
-        preview.innerHTML = "";
-        obtainedWordChars.map((char) => {
-            const charDiv = document.createElement("div");
-            charDiv.classList.add("char-preview");
+        // Get the preview elements
+        const previewElements = preview.querySelectorAll(".char-preview__char");
 
-            const charSpan = document.createElement("span");
-            charSpan.classList.add("char-preview__char");
-            charSpan.textContent = char;
-
-            charDiv.appendChild(charSpan);
-            preview.appendChild(charDiv);
+        // Update the preview elements with the obtained word chars
+        obtainedWordChars.forEach((char, index) => {
+            previewElements[index].textContent = char;
         });
     }
 
@@ -267,7 +305,6 @@ const CasitaCompleja = (params) => {
                 htmlElement: group[0].closest(".binary-select__char"),
                 isOK: actualChar === expectedWord[i],
                 actualChar: actualChar,
-                previewElement: params.preview.children[i],
             };
         });
     };
@@ -301,13 +338,13 @@ const CasitaCompleja = (params) => {
         generator.updatePreview(params.preview, binaryArray);
     };
 
-    generator.generateBinarySelects(params.container, evaluateWord);
-
     let binaryArray = [];
     pgEvent.getValues();
     binaryArray = pgEvent.data.state?.selectors?.match(/.{1,2}/g)
-        || generator.wordToBinaryString(params.initialWord?.toUpperCase() || expectedWord.replace(/[A-Z]/g, "?")).match(/.{1,2}/g);
+        || generator.wordToBinaryString(params.initialWord?.toUpperCase() 
+        || expectedWord.replace(/[A-Z]/g, "?")).match(/.{1,2}/g);
 
+    generator.createUI(params.container, params.preview, binaryArray, evaluateWord);
     generator.setBinarySelects(params.container, binaryArray);
     generator.updatePreview(params.preview, binaryArray);
 
