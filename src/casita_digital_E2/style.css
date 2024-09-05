@@ -16,15 +16,46 @@ body {
 
 .preview-caja {
   width: 100%;
-  margin-bottom: 30px;
+  margin: 30px 0;
 }
 #preview {
+  width: 500px;
+  margin: 0 auto;
   background-color: #4B4B4B;
   font-size: xx-large;
   padding: 25px;
   border-radius: 10px;
   color: white;
+  display: flex;
+  justify-content: space-around;
 }
+.char-preview__char{
+  background-color: #ffffff;
+  color: #000000;
+  padding: 5px;
+  order: 2;
+  font-size: .8em;
+  width: 30.19px;
+}
+.char-preview{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.char-preview b{
+  background-color: #1919bf;
+  border: 1px solid #000000;
+  border-radius: 50%;
+  padding: 5px;
+  font-size: .8em;
+  color: #ffffff;
+  font-weight: bolder;
+  width: 27.3px;
+}
+
 #casita {
   margin: 0 auto;
   height: 100vh;
@@ -41,18 +72,33 @@ body {
   width: 190px;
   height: 130px;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-evenly;
   background-image: url("https://assets.digitalhouse.com/content/ar/sch/imagen-ladrillo-cdigital.jpeg");
   background-size: cover;
-  border-right: 3px solid 	#4B4B4B;
-  border-left: 3px solid 	#4B4B4B;
-  border-top: 10px solid 	#4B4B4B;
+  border-right: 3px solid   #4B4B4B;
+  border-left: 3px solid  #4B4B4B;
+  border-top: 10px solid  #4B4B4B;
   border-bottom: 10px solid green;
   border-radius: 20px 20px 0 0;
   margin: 5px 0;
 }
-
+.binary-select__char div{
+  order: -1;
+}
+.binary-select__char div b{
+  background-color: #1919bf;
+  border: 1px solid #000000;
+  border-radius: 50%;
+  padding: 5px;
+  font-size: .8em;
+  color: #ffffff;
+  font-weight: normal;
+}
+.binary-select__char div{
+  width: 100%;
+}
 .binary-select__char::before {
   content: "";
   position: absolute;
@@ -63,8 +109,8 @@ body {
   background-image: url("https://assets.digitalhouse.com/content/ar/sch/techo-degradado-cdigital.jpeg");
   background-size: cover;
   transform: rotate(45deg);
-  border-top: 10px solid 	#4B4B4B;
-  border-left: 10px solid 	#4B4B4B;
+  border-top: 10px solid  #4B4B4B;
+  border-left: 10px solid   #4B4B4B;
   z-index: -1;
 }
 .binary-select__char::after {
@@ -84,7 +130,7 @@ body {
   height: 35%;
   background-color: #000000;
   color: white;
-  border: 2px solid 	#4B4B4B;
+  border: 2px solid   #4B4B4B;
   text-align: center;
   font-size: larger;
 }
