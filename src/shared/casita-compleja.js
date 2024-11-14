@@ -283,8 +283,13 @@ class CasitaDigitalCompleja {
  * @param {Function} params.onHouseChange - Callback function called when the house changes.
  * @param {HTMLElement} params.container - The container element for the CasitaCompleja object.
  * @param {HTMLElement} params.preview - The preview element for the CasitaCompleja object.
+ * @param {String} params.successMessage - The success message to show when the user finds the word. If not provided, a default message will be used.
+ * @param {String} params.failureMessage - The failure message to show when the user doesn't find the word. If not provided, a default message will be used.
  */
 const CasitaCompleja = (params) => {
+    const defaultSuccessMessage = "¡Bien hecho! Has encontrado la letra correcta.";
+    const defaultFailureMessage = "¡Oh no! Esa no es la palabra correcta. Inténtalo de nuevo.";
+
     const availableChars = [
         "?", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
         "Ñ", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
@@ -326,8 +331,8 @@ const CasitaCompleja = (params) => {
 
         const event = obtainedWord !== expectedWord ? "FAILURE" : "SUCCESS";
         const message = obtainedWord !== expectedWord
-            ? "¡Oh no! Esa no es la palabra correcta. Inténtalo de nuevo."
-            : "Bien hecho! Has encontrado la letra correcta.";
+            ? params.failureMessage || defaultFailureMessage
+            : params.successMessage || defaultSuccessMessage;
         pgEvent.postToPg({
             event, message,
             reasons: [],

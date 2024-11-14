@@ -240,8 +240,13 @@ export class Timer {
  * @param {boolean} params.isFreeMode - Indicates if the user is in free mode, that means, the user can change the lights without restrictions or expectations.
  * @param {HTMLElement} params.house - The container element where the house will be created.
  * @param {HTMLElement} params.letter - The HTML element where the message will be displayed.
+ * @param {String} params.successMessage - The success message to display when the user finds the expected letter.
+ * @param {String} params.failureMessage - The failure message to display when the user doesn't find the expected letter.
  */
 const CasitaDigital = (params) => {
+    const defaultSuccessMessage = "¡Felicidades! Has encontrado la letra correcta.";
+    const defaultFailureMessage = "¡Oh no! Esa no es la letra correcta. Inténtalo de nuevo.";
+
     const { expectedLetter, house, letter: messageElement } = params;
 
     /**
@@ -276,8 +281,9 @@ const CasitaDigital = (params) => {
         }
 
         const messageMatches = hasApproved(houseController, lights);
-        const message = messageMatches ? "¡Felicidades! Has encontrado la letra correcta."
-            : "¡Oh no! Esa no es la letra correcta. Inténtalo de nuevo.";
+        const message = messageMatches 
+            ? params.successMessage || defaultSuccessMessage
+            : params.failureMessage || defaultFailureMessage;
 
         pgEvent.postToPg({
             event: messageMatches ? "SUCCESS" : "FAILURE",
