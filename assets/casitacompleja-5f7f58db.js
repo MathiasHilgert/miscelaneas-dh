@@ -1,1 +1,0 @@
-import"./pg-event-8842ce7a.js";import{F as o}from"./casita-compleja-e8926395.js";window.onload=()=>{o({housesAmount:4,container:document.getElementById("casita"),preview:document.getElementById("preview"),onHouseChange:e=>{console.log("house",e)}})};

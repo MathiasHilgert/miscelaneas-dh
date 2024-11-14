@@ -1,1 +1,0 @@
-import"./pg-event-8842ce7a.js";import{C as e}from"./casita-compleja-e8926395.js";window.onload=()=>{e({initialWord:"DIGITAL",expectedWord:"DIGITAL",container:document.getElementById("casita"),preview:document.getElementById("preview")})};
