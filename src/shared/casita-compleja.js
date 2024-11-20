@@ -18,6 +18,24 @@ class CasitaDigitalCompleja {
     }
 
     /**
+     * Create the UI elements.
+     * @param {HTMLElement} container - The container element for the CasitaCompleja object.
+     * @param {HTMLElement} preview - The preview element for the CasitaCompleja object.
+     * @param {Array<Array<string>>} binaryArray - The binary array.
+     * @param {Function} onBinaryStringChange - The function that will be called when the user changes the binary string.
+     * @returns {void}
+     */
+    createUI(container, preview, binaryArray, onBinaryStringChange) {
+        const binaryString = binaryArray.flat().join("");
+        const obtainedWord = this.binaryStringToWord(binaryString);
+        const obtainedWordChars = obtainedWord.split("");
+        
+        // Create the UI elements
+        this.generateBinarySelects(container, onBinaryStringChange);
+        this.createPreview(preview, obtainedWordChars);
+    }
+
+    /**
      * Dado un string binario, devuelve el char correspondiente
      * del array availableChars o "_" si no se encuentra.
      * @param {string} binaryString
@@ -89,7 +107,39 @@ class CasitaDigitalCompleja {
     }
 
     /**
+     * Create the preview element structure.
+     * 
+     * It generates the following HTML structure in the given parent element:
+     * <div class="char-preview">
+     *   <span class="char-preview__char">A</span>
+     * </div>
+     * 
+     * @param {HTMLElement} parent - The parent element
+     * @param {Array<string>} obtainedWordChars - The obtained word chars
+     * @returns {void}
+     */
+    createPreview(parent, obtainedWordChars) {
+        obtainedWordChars.map((char) => {
+            const charDiv = document.createElement("div");
+            charDiv.classList.add("char-preview");
+
+            const charSpan = document.createElement("span");
+            charSpan.classList.add("char-preview__char");
+            charSpan.textContent = char;
+
+            charDiv.appendChild(charSpan);
+            parent.appendChild(charDiv);
+        });
+    }
+
+    /**
      * Updates the preview element with the obtained word
+     * 
+     * It generates the following HTML structure in the given parent element:
+     * <div class="char-preview">
+     *    <span class="char-preview__char">A</span>
+     * </div>
+     * 
      * @param {HTMLElement} preview - The preview element
      * @param {Array<Array<string>>} binaryArray - The binary array
      * @returns {void}
@@ -97,7 +147,17 @@ class CasitaDigitalCompleja {
     updatePreview(preview, binaryArray) {
         const binaryString = binaryArray.flat().join("");
         const obtainedWord = this.binaryStringToWord(binaryString);
-        preview.innerHTML = obtainedWord;
+
+        // Split the obtained word into an array of chars
+        const obtainedWordChars = obtainedWord.split("");
+
+        // Get the preview elements
+        const previewElements = preview.querySelectorAll(".char-preview__char");
+
+        // Update the preview elements with the obtained word chars
+        obtainedWordChars.forEach((char, index) => {
+            previewElements[index].textContent = char;
+        });
     }
 
     /**
@@ -212,73 +272,112 @@ class CasitaDigitalCompleja {
         });
     }
 }
+
 /**
- * Represents a CasitaCompleja object.
+ * Creates a CasitaCompleja object.
+ *
  * @param {Object} params - The parameters for creating a CasitaCompleja object.
- * @param {string} params.initialWord - The initial word that the user will see.
- * @param {string} params.expectedWord - The expected word that the user needs to find.
- * @params {HTMLElement} params.container - The container element for the CasitaCompleja object.
- * @params {HTMLElement} params.preview - The preview element for the CasitaCompleja object.
+ * @param {string} params.initialWord - The initial word shown by default.
+ * @param {string} params.expectedWord - The word the user needs to find. Not used if free mode is enabled.
+ * @param {boolean} params.isFreeMode - Indicates if the user is in free mode, allowing unrestricted changes.
+ * @param {Function} params.onHouseChange - Callback function called when the house changes.
+ * @param {HTMLElement} params.container - The container element for the CasitaCompleja object.
+ * @param {HTMLElement} params.preview - The preview element for the CasitaCompleja object.
+ * @param {String} params.successMessage - The success message to show when the user finds the word. If not provided, a default message will be used.
+ * @param {String} params.failureMessage - The failure message to show when the user doesn't find the word. If not provided, a default message will be used.
  */
 const CasitaCompleja = (params) => {
-    // Define expectations.
+    const defaultSuccessMessage = "¡Bien hecho! Has encontrado la letra correcta.";
+    const defaultFailureMessage = "¡Oh no! Esa no es la palabra correcta. Inténtalo de nuevo.";
+
     const availableChars = [
         "?", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
         "Ñ", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
     ];
     const expectedWord = params.expectedWord.toUpperCase();
-
-    // Define initial state.
     const pgEvent = new PGEvent();
     let hasSucceded = false;
 
-    // Create the generator, generate the UI and set the event listener,
-    // so we can check if the user has succeded or not.
     const generator = new CasitaDigitalCompleja(expectedWord, availableChars);
-    generator.generateBinarySelects(params.container, (binaryArray) => {
-        // Check if the obtained message is the expected one.
+
+    const calculateResults = (allSelects) => {
+        const bitsNeeded = generator.getBitsNeeded();
+        return Array.from({ length: Math.ceil(allSelects.length / bitsNeeded) }, (_, i) => {
+            const group = Array.from(allSelects).slice(i * bitsNeeded, (i + 1) * bitsNeeded);
+            const actualChar = generator.binaryStringToChar(group.map(select => select.value).join(""));
+            return {
+                index: (i + 1).toString(),
+                htmlElement: group[0].closest(".binary-select__char"),
+                isOK: actualChar === expectedWord[i],
+                actualChar: actualChar,
+            };
+        });
+    };
+
+    const evaluateWord = (binaryArray) => {
         const binaryString = binaryArray.flat().join("");
         const obtainedWord = generator.binaryStringToWord(binaryString);
 
-        if (obtainedWord !== expectedWord) {
-            pgEvent.postToPg({
-                event: "FAILURE",
-                message: "¡Oh no! Esa no es la palabra correcta. Inténtalo de nuevo.",
-                reasons: [],
-                state: JSON.stringify({
-                    selectors: binaryString,
-                })
-            })
-            hasSucceded = false;
-        } else {
-            pgEvent.postToPg({
-                event: "SUCCESS",
-                message: "Bien hecho! Has encontrado la letra correcta.",
-                reasons: [],
-                state: JSON.stringify({
-                    selectors: binaryString,
-                })
-            });
-            hasSucceded = true;
+        if (params.onHouseChange) {
+            const allSelects = params.container.querySelectorAll(".binary-select__select");
+            const results = calculateResults(allSelects);
+            params.onHouseChange(results);
         }
 
-        // Update the previews with the corresponding emoji.
-        // Append the emoji to the preview element.
-        generator.updatePreview(params.preview, binaryArray);
-    });
+        if (params.isFreeMode) {
+            generator.updatePreview(params.preview, binaryArray);
+            return;
+        }
 
-    // Load the initial state, if any.
+        const event = obtainedWord !== expectedWord ? "FAILURE" : "SUCCESS";
+        const message = obtainedWord !== expectedWord
+            ? params.failureMessage || defaultFailureMessage
+            : params.successMessage || defaultSuccessMessage;
+        pgEvent.postToPg({
+            event, message,
+            reasons: [],
+            state: JSON.stringify({ selectors: binaryString })
+        });
+
+        hasSucceded = obtainedWord === expectedWord;
+        generator.updatePreview(params.preview, binaryArray);
+    };
+
+    let binaryArray = [];
     pgEvent.getValues();
-    if (pgEvent.data.state?.selectors) {
-        const binaryArray = pgEvent.data.state.selectors.match(/.{1,2}/g);
-        generator.setBinarySelects(container, binaryArray);
-        generator.updatePreview(params.preview, binaryArray);
-    } else {
-        const initialWord = params.initialWord ? params.initialWord.toUpperCase() : expectedWord.replace(/[A-Z]/g, "?");
-        const binaryArray = generator.wordToBinaryString(initialWord).match(/.{1,2}/g);
-        generator.setBinarySelects(params.container, binaryArray);
-        generator.updatePreview(params.preview, binaryArray);
+    binaryArray = pgEvent.data.state?.selectors?.match(/.{1,2}/g)
+        || generator.wordToBinaryString(params.initialWord?.toUpperCase() 
+        || expectedWord.replace(/[A-Z]/g, "?")).match(/.{1,2}/g);
+
+    generator.createUI(params.container, params.preview, binaryArray, evaluateWord);
+    generator.setBinarySelects(params.container, binaryArray);
+    generator.updatePreview(params.preview, binaryArray);
+
+    if (params.onHouseChange) {
+        const allSelects = params.container.querySelectorAll(".binary-select__select");
+        const results = calculateResults(allSelects);
+        params.onHouseChange(results);
     }
 };
 
+
+/**
+ * Represents a CasitaCompleja object, with static generation and free mode.
+ * @param {Object} params - The parameters for creating a CasitaCompleja object.
+ * @param {number} params.housesAmount - The amount of houses to generate.
+ * @param {HTMLElement} params.container - The container element for the CasitaCompleja object.
+ * @param {HTMLElement} params.preview - The preview element for the CasitaCompleja object.
+ * @param {Function} params.onHouseChange - The function that will be called when the user changes the house.
+ */
+const FreeStaticCasitaCompleja = (params) => {
+    CasitaCompleja({
+        expectedWord: "?".repeat(params.housesAmount),
+        isFreeMode: true,
+        container: params.container,
+        preview: params.preview,
+        onHouseChange: params.onHouseChange,
+    });
+};
+
 export default CasitaCompleja;
+export { FreeStaticCasitaCompleja };
