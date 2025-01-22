@@ -3,7 +3,7 @@ const $ = $ => document.getElementById($)
 window.onload = () => {
     const casitaPreview = $("previewCaja")
     CasitaCompleja({
-        initialWord: "ALGOR????M",
+        initialWord: "ALGOR???M",
         expectedWord: "ALGORITHM",
         container: document.getElementById("casita"),
         preview: document.getElementById("preview"),
